@@ -6,12 +6,23 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export const signUpAction = async (formData: FormData) => {
+  const username = formData.get("username")?.toString();
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
-  if (!email || !password) {
+  const { data: existingUser } = await supabase
+    .from("users")
+    .select("id")
+    .eq("username", username)
+    .single();
+
+  if (existingUser) {
+    return encodedRedirect("error", "/sign-up", "Username is already taken.");
+  }
+
+  if (!email || !password || !username) {
     return encodedRedirect(
       "error",
       "/sign-up",
