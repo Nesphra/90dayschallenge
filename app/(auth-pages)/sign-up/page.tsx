@@ -29,6 +29,8 @@ export default async function Signup(props: {
           </Link>
         </p>
         <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
+          <Label htmlFor="username">Username</Label>
+          <Input name="username" placeholder="your_username" required />
           <Label htmlFor="email">Email</Label>
           <Input name="email" placeholder="you@example.com" required />
           <Label htmlFor="password">Password</Label>
@@ -39,6 +41,8 @@ export default async function Signup(props: {
             minLength={6}
             required
           />
+          <Label htmlFor="alerts">Would you like to receive emails regarding your streak?</Label>
+          <Input type="checkbox" name="alerts" required />
           <SubmitButton formAction={signUpAction} pendingText="Signing up...">
             Sign up
           </SubmitButton>

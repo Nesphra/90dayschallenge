@@ -7,7 +7,7 @@ export default async function Instruments({
   params: { profilePage: string }
 }) {
   const supabase = await createClient();
-  const profilePage = params.profilePage
+  const profilePage = await params.profilePage
   
   const { data: profileData } = await supabase
     .from("profiles")
