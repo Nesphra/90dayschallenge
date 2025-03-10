@@ -1,27 +1,42 @@
-// import { createClient } from '@/utils/supabase/server';
-// import UpdateStreakButton from "./updateStreakButton";
-import React from 'react';
-
+import { createClient } from '@/utils/supabase/server';
+import UpdateStreakButton from "./updateStreakButton";
+// import type { Metadata, ResolvingMetadata } from 'next'
+ 
 type Props = {
-  params: {
-    username: string;
-  };
-};
-
-
-export default function UserProfile({ params }: Props) {
-  const {username} = params;
-  params.username = "me";
+  params: Promise<{ id: string }>
+}
+ 
+// export async function generateMetadata(
+//   { params, searchParams }: Props,
+//   parent: ResolvingMetadata
+// ): Promise<Metadata> {
+//   // read route params
+//   const { id } = await params
+ 
+//   // fetch data
+//   const product = await fetch(`https://.../${id}`).then((res) => res.json())
+ 
+//   // optionally access and extend (rather than replace) parent metadata
+//   const previousImages = (await parent).openGraph?.images || []
+ 
+//   return {
+//     title: product.title,
+//     openGraph: {
+//       images: ['/some-specific-page-image.jpg', ...previousImages],
+//     },
+//   }
+// }
+ 
+export default function Page({ params }: Props) {
   
   return (
     <div>
-      <h1>Profile of {params.username}</h1>
-      {/* You could fetch and render user data based on params.username */}
+      hello there
     </div>
-  );
+  )
 }
 
-// export default async function Instruments({
+// export default async function profilePage({
 //   params,
 // }: {
 //   params: { profilePage: string }
