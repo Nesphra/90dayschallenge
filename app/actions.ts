@@ -70,6 +70,7 @@ export const signUpAction = async (formData: FormData) => {
     "Account created successfully.",
   );
 };
+
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
@@ -84,8 +85,17 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-in", error.message);
   }
 
-  return redirect("/protected");
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select()
+    .eq('id', user?.id)
+    .single()
+
+  return redirect(`/u/${profile.user_name}`);
 };
+
 
 export const forgotPasswordAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
