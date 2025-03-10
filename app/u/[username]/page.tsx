@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
-import UpdateStreakButton from "./updateStreakButton";
+import UpdateStreakButton from "../../../components/updateStreakButton";
 // import type { Metadata, ResolvingMetadata } from 'next'
  
 type Props = {
