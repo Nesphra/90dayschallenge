@@ -1,10 +1,18 @@
-import { createClient } from '@/utils/supabase/server';
-import UpdateStreakButton from "./updateStreakButton";
-// app/in/[username]/page.tsx
+// import { createClient } from '@/utils/supabase/server';
+// import UpdateStreakButton from "./updateStreakButton";
 import React from 'react';
 
-export default function UserProfile({ params }: { params: { username: string } }) {
+type Props = {
+  params: {
+    username: string;
+  };
+};
+
+
+export default function UserProfile({ params }: Props) {
+  const {username} = params;
   params.username = "me";
+  
   return (
     <div>
       <h1>Profile of {params.username}</h1>
