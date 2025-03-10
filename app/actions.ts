@@ -61,7 +61,7 @@ export const signUpAction = async (formData: FormData) => {
     }
 
     // Redirect to the user's profile page
-    return redirect(`/${username}`);
+    return redirect(`/u/${username}`);
   }
 
   return encodedRedirect(
