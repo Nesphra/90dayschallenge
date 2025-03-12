@@ -1,8 +1,14 @@
+import { Button } from "@/components/ui/button";
+
 export default async function Home() {
   return (
     <>
-      <main className="flex-1 flex flex-col gap-6 px-4">
-        <h2 className="font-medium text-xl mb-4">Please sign up</h2>
+      <main className="w-100 bg-blue-200">
+        <div className="w-100 bg-red-500 flex-col justify-content items-center h-100 mr-5">
+          <h1 className="font-medium text-xl mb-4">Take control.</h1>
+          <p>Join million of others improving their lives</p>
+          <Button>Change my life</Button>
+        </div>
       </main>
     </>
   );

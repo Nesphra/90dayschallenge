@@ -48,11 +48,27 @@ export default async function AuthButton() {
     </div>
   ) : (
     <div className="flex gap-2">
+      <div className="flex justify-content items-center h-100 mr-5">
+        <ul className="flex space-x-8">
+          <li>
+            <a className="relative text-black hover:text-blue-800 group">
+              Emergency
+              <span className="absolute bottom-[-3px] left-0 w-full h-[2px] bg-blue-800 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </a>
+          </li>
+          <li>
+            <a className="relative text-black hover:text-blue-800 group">
+              Forum
+              <span className="absolute bottom-[-3px] left-0 w-full h-[2px] bg-blue-800 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+            </a>
+          </li>
+        </ul>
+      </div>
       <Button asChild size="sm" variant={"outline"}>
         <Link href="/sign-in">Sign in</Link>
       </Button>
       <Button asChild size="sm" variant={"default"}>
-        <Link href="/sign-up">Sign up</Link>
+        <Link href="/sign-up">Register</Link>
       </Button>
     </div>
   );
