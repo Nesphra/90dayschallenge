@@ -56,7 +56,7 @@ export default async function Page({ params }: Props) {
 
       {/* Sidebar - Fixed Width */}
       <div className="p-4 w-[300px] items-center text-center bg-gray-200">
-        <p>Community Component</p>
+        <p>Community Component/</p>
       </div>
     </div>
   );
