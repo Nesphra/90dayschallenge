@@ -1,13 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
-import Canvas from '@/components/canvas'
-import Quote from '@/components/quote'
-import { Open_Sans } from "next/font/google";
- 
-const openSans = Open_Sans({
-  subsets: ["latin"],
-  weight: ["700"], // Adjust weight if needed
-});
-
+import User from '@/components/user'
+import Other from '@/components/other'
 
 type Props = {
   params: Promise<{ username: string }>
@@ -20,6 +13,8 @@ export default async function Page({ params }: Props) {
   
   const supabase = await createClient();
   
+  // get user data
+  const { data: { user } } = await supabase.auth.getUser();
   
   // Fetch the user's profile based on the username from the URL
   const { data: profile, error } = await supabase
@@ -28,11 +23,7 @@ export default async function Page({ params }: Props) {
     .eq('user_name', username)
     .single();
 
-  const {data: streak } = await supabase
-    .from('streaks')
-    .select()
-    .eq('id', profile?.id)
-    .single()
+  const isUser = profile?.id === user?.id;
   
   if (error || !profile) {
     return (
@@ -45,19 +36,14 @@ export default async function Page({ params }: Props) {
   
   return (
     <div className="flex h-full">
-      {/* Main Content - Takes up all remaining space */}
-      <div className="flex-1 p-6 flex flex-col items-center text-center justify-between h-full gap-6">
-        <div>
-        <h1 className={`text-4xl font-bold ${openSans.className}`}>MY BRAIN</h1>
-          <p>Every day is a massive win. Keep the goal in mind.</p>
-        </div>
-        <Canvas streak={streak.streak} streakId={streak.id} last_logged={streak.last_day_logged} title={streak.title}/>
-        <Quote/>
-      </div>
-
-      {/* Sidebar - Fixed Width */}
+      {isUser ? (
+        <User/>
+      ) : (
+        <Other profileName={username}/>
+      )}
+      
       <div className="p-4 w-[300px] items-center text-center bg-gray-200">
-        <p>Community Component/</p>
+        <p>Community Component</p>
       </div>
     </div>
   );

@@ -11,9 +11,10 @@ type CanvasProps = {
   streakId: string;
   last_logged: string; // Stored in UTC
   title: string;
+  isUser: boolean;
 };
 
-const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogged, title: initialTitle }: CanvasProps) => {
+const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogged, title: initialTitle, isUser}: CanvasProps) => {
   const supabase = createClient();
 
   const [streak, setStreak] = useState<number>(initialStreak);
@@ -84,22 +85,30 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
         ) : (
           <h1 className='h-20px'>{title}</h1>
         )}
-        <button
-          onClick={() => setEditTitle(true)}
-          className="opacity-50 hover:opacity-100 transition duration-200"
-        >
-          <Pencil size={17} />
-        </button>
+        {isUser ? (
+          <button
+            onClick={() => setEditTitle(true)}
+            className="opacity-50 hover:opacity-100 transition duration-200"
+          >
+            <Pencil size={17} />
+          </button>
+        ) : (
+          null
+        )}
       </div>
 
       <Progressgrid streak={streak} />
-      <Button
-        onClick={increment}
-        disabled={loading || alreadyUpdated}
-        className={alreadyUpdated ? "bg-gray-400 cursor-not-allowed" : ""}
-      >
-        {alreadyUpdated ? "Completed" : loading ? "Updating..." : "Update Streak"}
-      </Button>
+      {isUser ? (
+        <Button
+          onClick={increment}
+          disabled={loading || alreadyUpdated}
+          className={alreadyUpdated ? "bg-gray-400 cursor-not-allowed" : ""}
+        >
+          {alreadyUpdated ? "Completed" : loading ? "Updating..." : "Update Streak"}
+        </Button>
+      ) : (
+        null
+      )}
     </div>
   );
 };
