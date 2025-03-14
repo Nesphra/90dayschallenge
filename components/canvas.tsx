@@ -29,8 +29,9 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
   localMidnight.setHours(0, 0, 0, 0); // Set time to 00:00 in local timezone
   const utcMidnight = localMidnight.toISOString().split("T")[0]; // Convert to YYYY-MM-DD UTC
 
-  const alreadyUpdated = utcMidnight === lastLogged.split("T")[0]; // Compare UTC dates
-
+  const lastLoggedDate = lastLogged ? lastLogged.split("T")[0] : null;
+  const alreadyUpdated = lastLoggedDate === utcMidnight;
+  
   const increment = async () => {
     if (alreadyUpdated) return;
     setLoading(true);
@@ -70,7 +71,7 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
   };
 
   return (
-    <div className="relative flex flex-col items-center p-6 border-2 border-gray-300 rounded w-4/5">
+    <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 h-[450px]">
       <div className="relative flex justify-center items-center gap-2 w-full">
         {editTitle ? (
           <input
@@ -107,7 +108,11 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
           {alreadyUpdated ? "Completed" : loading ? "Updating..." : "Update Streak"}
         </Button>
       ) : (
-        null
+        <Button
+          className={"bg-gray-400 cursor-not-allowed"}
+        >
+          {streak}/90 days complete
+        </Button>
       )}
     </div>
   );
