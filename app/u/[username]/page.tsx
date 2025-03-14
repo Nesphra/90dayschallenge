@@ -20,10 +20,11 @@ export default async function Page({ params }: Props) {
   
   const supabase = await createClient();
   
+  
   // Fetch the user's profile based on the username from the URL
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, user_name')
+    .select()
     .eq('user_name', username)
     .single();
 
@@ -50,7 +51,7 @@ export default async function Page({ params }: Props) {
         <h1 className={`text-4xl font-bold ${openSans.className}`}>MY BRAIN</h1>
           <p>Every day is a massive win. Keep the goal in mind.</p>
         </div>
-        <Canvas streak={streak.streak} streakId={streak.id} last_logged={streak.last_day_logged}/>
+        <Canvas streak={streak.streak} streakId={streak.id} last_logged={streak.last_day_logged} title={streak.title}/>
         <Quote/>
       </div>
 

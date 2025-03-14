@@ -4,68 +4,101 @@ import { createClient } from '@/utils/supabase/client';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import Progressgrid from '@/components/progressGrid';
+import { Pencil } from "lucide-react";
 
 type CanvasProps = {
-  streak: number; // Initial streak value from the server
+  streak: number;
   streakId: string;
-  last_logged: string;
+  last_logged: string; // Stored in UTC
+  title: string;
 };
 
-const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogged }: CanvasProps) => {
+const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogged, title: initialTitle }: CanvasProps) => {
   const supabase = createClient();
-  
-  // Local state to manage streak, last_logged, and loading state
+
   const [streak, setStreak] = useState<number>(initialStreak);
   const [lastLogged, setLastLogged] = useState<string>(initialLastLogged);
   const [loading, setLoading] = useState<boolean>(false);
+  const [editTitle, setEditTitle] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>(initialTitle);
+  const [newTitle, setNewTitle] = useState<string>(initialTitle);
 
-  // Get today's date in YYYY-MM-DD format
-  const todayDate = new Date().toISOString().split("T")[0];
+  // Get today's date in UTC (converted from local)
+  const localMidnight = new Date();
+  localMidnight.setHours(0, 0, 0, 0); // Set time to 00:00 in local timezone
+  const utcMidnight = localMidnight.toISOString().split("T")[0]; // Convert to YYYY-MM-DD UTC
 
-  // Check if the streak has already been updated today
-  const alreadyUpdated = todayDate === lastLogged;
+  const alreadyUpdated = utcMidnight === lastLogged.split("T")[0]; // Compare UTC dates
 
-  // Function to increment the streak and update last_day_logged
   const increment = async () => {
-    if (alreadyUpdated) return; // Prevent unnecessary calls
-
+    if (alreadyUpdated) return;
     setLoading(true);
-    
+
+    // Store UTC midnight in Supabase
     const { error } = await supabase
       .from("streaks")
-      .update({ streak: streak + 1, last_day_logged: todayDate })
-      .eq('id', streakId);
+      .update({ streak: streak + 1, last_day_logged: utcMidnight })
+      .eq("id", streakId);
 
     if (error) {
-      console.error('Error updating streak:', error.message);
+      console.error("Error updating streak:", error.message);
     } else {
-      // Fetch the updated streak value and last_logged
-      const { data } = await supabase
-        .from("streaks")
-        .select('streak, last_day_logged')
-        .eq('id', streakId)
-        .single();
-
-      if (data) {
-        setStreak(data.streak);
-        setLastLogged(data.last_day_logged); // Update the last logged date in state
-      }
+      setStreak(streak + 1);
+      setLastLogged(utcMidnight);
     }
+
     setLoading(false);
   };
 
+  const saveTitle = async () => {
+    setEditTitle(false);
+    if (newTitle === title) return;
+
+    const previousTitle = title;
+    setTitle(newTitle);
+
+    const { error } = await supabase
+      .from("streaks")
+      .update({ title: newTitle })
+      .eq('id', streakId);
+
+    if (error) {
+      console.error('Error updating title:', error.message);
+      setTitle(previousTitle);
+    }
+  };
+
   return (
-    <div className='flex flex-col items-center p-6 border-2 border-gray-300 rounded w-4/5'>
-      <h1>Progress: {streak}/90</h1>
+    <div className="relative flex flex-col items-center p-6 border-2 border-gray-300 rounded w-4/5">
+      <div className="relative flex justify-center items-center gap-2 w-full">
+        {editTitle ? (
+          <input
+            type="text"
+            className="text-center bg-gray-200 px-2 w-1/2 outline-none h-20px m-0 p-0"
+            value={newTitle}
+            autoFocus
+            onChange={(e) => setNewTitle(e.target.value)}
+            onBlur={saveTitle}
+            onKeyDown={(e) => e.key === 'Enter' && saveTitle()}
+          />
+        ) : (
+          <h1 className='h-20px'>{title}</h1>
+        )}
+        <button
+          onClick={() => setEditTitle(true)}
+          className="opacity-50 hover:opacity-100 transition duration-200"
+        >
+          <Pencil size={17} />
+        </button>
+      </div>
 
       <Progressgrid streak={streak} />
-
-      <Button 
-        onClick={increment} 
-        disabled={loading || alreadyUpdated} 
+      <Button
+        onClick={increment}
+        disabled={loading || alreadyUpdated}
         className={alreadyUpdated ? "bg-gray-400 cursor-not-allowed" : ""}
       >
-        {alreadyUpdated ? "Completed" : (loading ? "Updating..." : "Update Streak")}
+        {alreadyUpdated ? "Completed" : loading ? "Updating..." : "Update Streak"}
       </Button>
     </div>
   );
