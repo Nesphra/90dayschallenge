@@ -1,7 +1,6 @@
 import { createClient } from '@/utils/supabase/server';
 import { Open_Sans } from "next/font/google";
 import Canvas from '@/components/canvas';
-import Quote from '@/components/quote';
 
 const openSans = Open_Sans({
   subsets: ["latin"],
@@ -23,6 +22,12 @@ const Other = async ({ profileName }: OtherProps) => {
         .select('id')
         .eq('user_name', profileName)
         .single();
+
+    const { data: streaks } = await supabase
+        .from('streaks')
+        .select()
+        .eq('id', profile?.id)
+        .single()
 
     if (!profile) {
         return (
@@ -55,7 +60,7 @@ const Other = async ({ profileName }: OtherProps) => {
                     title={streak.title}
                 />
             )}
-            <Quote />
+            <p>{streak.quote}</p>
         </div>
     );
 };
