@@ -62,10 +62,12 @@ export default function Quote() {
 
             // Save quote and date to Supabase
             const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser()
+
             await supabase
                 .from('streaks')
                 .update({ quote: newQuote, quoteLog: today })
-                .eq('id', streak.id);
+                .eq('id', user?.id);
         } catch (error) {
             console.error("Error generating quote:", error);
             setQuote("Error fetching quote.");
