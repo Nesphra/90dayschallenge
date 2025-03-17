@@ -52,7 +52,6 @@ export default async function Login(props: {
           <FormMessage message={searchParams} />
         </div>
       </form>
-      <div className="mx-auto"><SmtpMessage/></div>
     </>
   );
 }

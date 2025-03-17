@@ -34,7 +34,6 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {/* Full viewport height */}
           <main className="h-screen flex flex-col gap-7">
             
             {/* Navigation Baimage.pngr (Fixed Height) */}

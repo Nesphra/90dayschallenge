@@ -2,15 +2,20 @@ import React from "react";
 
 type ProgressGridProps = {
   streak: number;
+  size: number;
+  rounded: boolean;
+  gap: number;
 };
 
-const ProgressGrid = ({ streak }: ProgressGridProps) => {
+const ProgressGrid = ({ streak, size, rounded, gap }: ProgressGridProps) => {
   return (
-    <div className="grid grid-cols-10 gap-1 p-4">
+    <div className="grid grid-cols-10" style={{ gap: `${gap}rem`}}>
       {Array.from({ length: 90 }).map((_, index) => (
         <div
           key={index}
-          className={`w-6 h-6 border rounded-sm ${index < streak ? "bg-green-400" : "bg-gray-300"}`}
+          className={`w-${size} h-${size} ${rounded ? "rounded-md" : ""} ${
+            index < streak ? "bg-green-400" : "bg-gray-300"
+          }`}
         ></div>
       ))}
     </div>

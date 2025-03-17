@@ -46,7 +46,6 @@ export default async function Signup(props: {
           <SubmitButton formAction={signUpAction} pendingText="Signing up...">
             Sign up
           </SubmitButton>
-          <FormMessage message={searchParams} />
         </div>
       </form>
       <div className="mx-auto"><SmtpMessage/></div>

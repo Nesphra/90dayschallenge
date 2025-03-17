@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server';
 import User from '@/components/user'
 import Other from '@/components/other'
+import Friends from '@/components/friends'
 
 type Props = {
   params: Promise<{ username: string }>
@@ -43,7 +44,7 @@ export default async function Page({ params }: Props) {
       )}
       
       <div className="p-4 w-[300px] items-center text-center bg-gray-200">
-        <p>Community Component</p>
+        <Friends></Friends>
       </div>
     </div>
   );

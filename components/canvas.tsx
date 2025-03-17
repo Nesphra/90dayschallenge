@@ -89,7 +89,7 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
         {isUser ? (
           <button
             onClick={() => setEditTitle(true)}
-            className="opacity-50 hover:opacity-100 transition duration-200"
+            className="w-0 opacity-50 hover:opacity-100 transition duration-200"
           >
             <Pencil size={17} />
           </button>
@@ -98,7 +98,8 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
         )}
       </div>
 
-      <Progressgrid streak={streak} />
+      <Progressgrid streak={streak} size={6} rounded={true} gap={0.25}/>
+      
       {isUser ? (
         <Button
           onClick={increment}
