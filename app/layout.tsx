@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className="bg-background text-foreground">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="light"
           enableSystem
           disableTransitionOnChange
         >
@@ -56,9 +56,9 @@ export default function RootLayout({
             {/* Footer (Fixed Height) */}
             <footer className="w-full h-16 flex items-center justify-center border-t mx-auto text-center text-xs gap-8">
               <p>
-                Provided to you by <span className="font-bold">Locked In Industries</span>
+                Provided to you by <span className="font-bold">Locked In Industries™</span>
               </p>
-              <ThemeSwitcher />
+              {/* <ThemeSwitcher /> */}
             </footer>
 
           </main>
