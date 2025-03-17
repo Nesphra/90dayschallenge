@@ -98,7 +98,7 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
         )}
       </div>
 
-      <Progressgrid streak={streak} size={6} rounded={true} gap={0.25}/>
+      <Progressgrid streak={streak} size={250} rounded={true} gap={0.25}/>
       
       {isUser ? (
         <Button

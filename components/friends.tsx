@@ -157,7 +157,7 @@ const Friends = () => {
                                 <div className='bg-white p-2 rounded-xl flex flex-col justify-center items-center'>
                                     <p className="text-md font-semibold">{friend.username}</p>
                                     <div className='p-4'>
-                                        <ProgressGrid streak={friend?.streak ?? 0} size={2} rounded={false} gap={0.125} />
+                                        <ProgressGrid streak={friend?.streak ?? 0} size={100} rounded={false} gap={0.125} />
                                     </div>
                                     <p className="text-gray-600 text-[13px]">
                                         {friend.streak !== null ? friend.streak : "No data"}/90

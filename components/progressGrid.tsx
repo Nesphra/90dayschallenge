@@ -9,11 +9,11 @@ type ProgressGridProps = {
 
 const ProgressGrid = ({ streak, size, rounded, gap }: ProgressGridProps) => {
   return (
-    <div className="grid grid-cols-10" style={{ gap: `${gap}rem`}}>
+    <div className="grid grid-cols-10" style={{ gap: `${gap}rem`, width: `${size}px`, height: `${size}px`}}>
       {Array.from({ length: 90 }).map((_, index) => (
         <div
           key={index}
-          className={`w-${size} h-${size} ${rounded ? "rounded-md" : ""} ${
+          className={`${rounded ? "rounded-md" : ""} ${
             index < streak ? "bg-green-400" : "bg-gray-300"
           }`}
         ></div>
