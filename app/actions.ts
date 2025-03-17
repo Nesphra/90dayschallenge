@@ -11,6 +11,7 @@ export const signUpAction = async (formData: FormData) => {
   const username = formData.get("username")?.toString();
   const alerts = formData.get("alerts") === "on";
   const supabase = await createClient();
+  const origin = (await headers()).get("origin");
 
   if (!email || !password || !username) {
     return encodedRedirect(
@@ -20,15 +21,11 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  // Sign up the user with Supabase Auth (without email verification)
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: {
-        username: username, // Store username in auth.users.user_metadata
-      },
-      emailRedirectTo: undefined, // Skip email verification
+      emailRedirectTo: `${origin}/auth/callback`, 
     },
   });
 
@@ -37,7 +34,6 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect("error", "/sign-up", error.message);
   }
 
-  // If user was created successfully, update their profile
   if (data.user) {
     const { error: profileError } = await supabase
       .from('profiles')
@@ -49,11 +45,8 @@ export const signUpAction = async (formData: FormData) => {
     
     if (profileError) {
       console.error("Error updating profile: " + profileError.message);
-      // Continue anyway since the user was created
     }
 
-    // Instead of automatically signing in and redirecting to profile page,
-    // redirect back to sign-up with a success message
     return encodedRedirect(
       "success",
       "/sign-up",
