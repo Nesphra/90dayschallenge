@@ -41,14 +41,14 @@ export default async function Signup(props: {
             minLength={6}
             required
           />
-          <Label htmlFor="alerts">Would you like to receive emails regarding your streak? (optional)</Label>
+          <Label htmlFor="alerts">Would you like to receive emails regarding your streak? (optional) (not yet working)</Label>
           <Input type="checkbox" name="alerts"/>
           <SubmitButton formAction={signUpAction} pendingText="Signing up...">
             Sign up
           </SubmitButton>
+          <FormMessage message={searchParams}/>
         </div>
       </form>
-      <div className="mx-auto"><SmtpMessage/></div>
     </>
   );
 }

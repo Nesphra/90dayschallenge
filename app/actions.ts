@@ -41,7 +41,10 @@ export const signUpAction = async (formData: FormData) => {
   if (data.user) {
     const { error: profileError } = await supabase
       .from('profiles')
-      .update({ user_name: username })
+      .update({ 
+        user_name: username,
+        receive_alerts: alerts // Update receive_alerts field based on checkbox
+      })
       .eq('id', data.user.id);
     
     if (profileError) {
@@ -49,27 +52,22 @@ export const signUpAction = async (formData: FormData) => {
       // Continue anyway since the user was created
     }
 
-    // Now sign in the user immediately
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (signInError) {
-      console.error("Error signing in: " + signInError.message);
-      return encodedRedirect("error", "/sign-up", "Account created but couldn't sign in automatically. Please sign in manually.");
-    }
-
-    // Redirect to the user's profile page
-    return redirect(`/u/${username}`);
+    // Instead of automatically signing in and redirecting to profile page,
+    // redirect back to sign-up with a success message
+    return encodedRedirect(
+      "success",
+      "/sign-up",
+      "Account created successfully. Please check your email to verify your account."
+    );
   }
 
   return encodedRedirect(
     "success",
-    "/sign-up",
+    "/sign-in",
     "Account created successfully.",
   );
 };
+
 
 export const signInAction = async (formData: FormData) => {
   const email = formData.get("email") as string;

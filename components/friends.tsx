@@ -152,7 +152,6 @@ const Friends = () => {
             return;
         }
     
-        // Remove the friend from the array
         const updatedFriends = currentFriends.filter((friend: string) => friend !== friendUsername);
     
         const { error: updateError } = await supabase
