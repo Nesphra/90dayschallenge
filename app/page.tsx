@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Search, UserPlus, Trash2 } from "lucide-react";
 
 export default async function Home() {
   return (
