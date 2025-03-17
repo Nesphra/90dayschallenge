@@ -40,8 +40,10 @@ export default async function Signup(props: {
             minLength={6}
             required
           />
-          <Label htmlFor="alerts">Would you like to receive emails regarding your streak? (optional) (not yet working)</Label>
-          <Input type="checkbox" name="alerts"/>
+          <div className="flex flex-row justify-center items-center gap-5 px-2">
+            <Input type="checkbox" name="alerts" className="w-10"/>
+            <Label htmlFor="alerts">Receive emails regarding your streak? <span className="text-gray-400">(optional)</span></Label>
+          </div>
           <SubmitButton formAction={signUpAction} pendingText="Signing up...">
             Sign up
           </SubmitButton>
