@@ -13,8 +13,8 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "The 90 days challenge website",
-  description: "All it takes is 90 days to master your life.",
+  title: "90 days challenge",
+  description: "Fix your lifestyle in 90 days.",
 };
 
 const geistSans = Geist({

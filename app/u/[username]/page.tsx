@@ -1,27 +1,32 @@
 import { createClient } from '@/utils/supabase/server';
-import User from '@/components/user';
-import Other from '@/components/other';
-import Friends from '@/components/friends';
-import type { Metadata } from 'next';
+import type { Metadata, ResolvingMetadata } from 'next'
+import User from '@/components/user'
+import Other from '@/components/other'
+import Friends from '@/components/friends'
 
 type Props = {
-  params: { username: string };
-};
-
+  params: Promise<{ username: string }>
+}
+ 
 export default async function Page({ params }: Props) {
-  const { username } = params;
+  // Resolve the params promise to get the actual username
+  const resolvedParams = await params;
+  const username = resolvedParams.username;
+  
   const supabase = await createClient();
-
-  // Get current authenticated user
+  
+  // get user data
   const { data: { user } } = await supabase.auth.getUser();
-
+  
   // Fetch the user's profile based on the username from the URL
   const { data: profile, error } = await supabase
     .from('profiles')
-    .select('id, user_name')
+    .select()
     .eq('user_name', username)
     .single();
 
+  const isUser = profile?.id === user?.id;
+  
   if (error || !profile) {
     return (
       <div className="p-6">
@@ -30,46 +35,47 @@ export default async function Page({ params }: Props) {
       </div>
     );
   }
-
-  const isUser = profile.id === user?.id;
-
+  
   return (
     <div className="flex h-full">
-      {isUser ? <User /> : <Other profileName={username} />}
+      {isUser ? (
+        <User/>
+      ) : (
+        <Other profileName={username}/>
+      )}
+      
       <div className="p-4 w-[300px] items-center text-center bg-gray-200 rounded-xl">
-        <Friends />
+        <Friends></Friends>
       </div>
     </div>
   );
 }
+ 
+export async function generateMetadata(
+  { params }: Props,
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  // Resolve the params promise to get the actual username
+  const resolvedParams = await params;
+  const username = resolvedParams.username;
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { username } = params;
   const supabase = await createClient();
 
-  // Get the authenticated user
-  const { data: { user } } = await supabase.auth.getUser();
-
-  // Fetch the user's profile based on the username
+  // Fetch the user's profile based on the username from the URL
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, user_name')
+    .select('user_name')
     .eq('user_name', username)
     .single();
-  
-  const { data: streak } = await supabase
-    .from('streaks')
-    .select('streak')
-    .eq('id', user?.id)
-    .single()
 
+  // If no profile found, return default metadata
   if (!profile) {
-    return { title: 'User Not Found' };
+    return {
+      title: "User Not Found",
+    };
   }
 
-  const isUser = profile.id === user?.id;
-
   return {
-    title: isUser ? `My Streak - ${streak?.streak}/90` : `${profile.user_name}'s Streak`,
+    title: `${profile.user_name}'s Streak`,
   };
 }
