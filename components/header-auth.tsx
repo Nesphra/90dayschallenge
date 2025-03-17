@@ -21,18 +21,6 @@ export default async function AuthButton() {
       <div className="linkList">
         <ul className="flex space-x-8">
           <li>
-            <a className="relative text-black hover:text-blue-800 group">
-              Emergency
-              <span className="absolute bottom-[-3px] left-0 w-full h-[2px] bg-blue-800 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </a>
-          </li>
-          <li>
-            <a className="relative text-black hover:text-blue-800 group">
-              Forum
-              <span className="absolute bottom-[-3px] left-0 w-full h-[2px] bg-blue-800 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
-            </a>
-          </li>
-          <li>
             <a className="relative text-black hover:text-blue-800 group" href={"/u/" + (profileData?.user_name ?? "null")}>
               My Brain
               <span className="absolute bottom-[-3px] left-0 w-full h-[2px] bg-blue-800 scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>

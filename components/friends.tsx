@@ -6,7 +6,7 @@ import ProgressGrid from './progressGrid';
 import { Search, UserPlus, Trash2 } from "lucide-react";
 
 const Friends = () => {
-    const [friends, setFriends] = useState<{ username: string; streak: number | null }[]>([]);
+    const [friends, setFriends] = useState<{ username: string; streak: number | null; title?: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [friendUsername, setFriendUsername] = useState(""); 
@@ -153,7 +153,7 @@ const Friends = () => {
         }
     
         // Remove the friend from the array
-        const updatedFriends = currentFriends.filter(friend => friend !== friendUsername);
+        const updatedFriends = currentFriends.filter((friend: string) => friend !== friendUsername);
     
         const { error: updateError } = await supabase
             .from('profiles')
@@ -199,9 +199,6 @@ const Friends = () => {
                             <a href={`/u/${friend.username}`}>
                                 <div className='bg-white p-2 rounded-xl flex flex-col justify-center items-center'>
                                     <p className="text-md font-semibold">{friend.username}</p>
-                                    <div className='p-4'>
-                                        <ProgressGrid streak={friend?.streak ?? 0} size={100} rounded={false} gap={0.125} />
-                                    </div>
                                     <div>
                                         <p className='text-sm'>{friend.title}</p>
                                         <p className="text-gray-600 text-[13px] opacity-70">
