@@ -54,18 +54,13 @@ const Friends = () => {
                 return { username, streak: null };
             }
 
-            const { data: streakData, error: streakError } = await supabase
+            const { data: streakData } = await supabase
                 .from('streaks')
-                .select("streak")
+                .select()
                 .eq('id', friendProfile.id)
                 .single();
 
-            if (streakError || !streakData) {
-                console.error(`Error fetching streak for ${username}:`, streakError?.message);
-                return { username, streak: null };
-            }
-
-            return { username, streak: streakData.streak };
+            return { username, streak: streakData.streak, title: streakData.title };
         }));
 
         setFriends(friendsWithStreaks);
@@ -128,6 +123,54 @@ const Friends = () => {
         fetchFriends(); 
     };
 
+    // to do
+    const handleRemoveFriend = async (friendUsername: string) => {
+        setError(null); // Reset error state
+    
+        const { data: { user }, error: userError } = await supabase.auth.getUser();
+        if (userError || !user) {
+            console.error("Error fetching user:", userError?.message);
+            setError("Failed to fetch user.");
+            return;
+        }
+    
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select("friends")
+            .eq('id', user.id)
+            .single();
+    
+        if (profileError || !profile) {
+            console.error("Error fetching profile:", profileError?.message);
+            setError("Failed to load friends.");
+            return;
+        }
+    
+        const currentFriends = profile?.friends || [];
+        if (!currentFriends.includes(friendUsername)) {
+            setError("Friend not found in your list.");
+            return;
+        }
+    
+        // Remove the friend from the array
+        const updatedFriends = currentFriends.filter(friend => friend !== friendUsername);
+    
+        const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ friends: updatedFriends })
+            .eq('id', user.id);
+    
+        if (updateError) {
+            console.error("Error updating friends list:", updateError.message);
+            setError("Failed to remove friend.");
+            return;
+        }
+    
+        fetchFriends(); // Refresh the friend list after removal
+    };
+    
+    
+
     return (
         <div className="flex flex-col h-full max-h-full min-h-0 justify-center">
             <div className="flex gap-2 p-2">
@@ -152,18 +195,24 @@ const Friends = () => {
                     <div className="text-gray-600">Loading...</div>
                 ) : friends.length > 0 ? (
                     friends.map((friend, index) => (
-                        <div key={index} className="p-2 border-b">
+                        <div key={index} className="p-2 border-b relative hover:drop-shadow-lg duration-200">
                             <a href={`/u/${friend.username}`}>
                                 <div className='bg-white p-2 rounded-xl flex flex-col justify-center items-center'>
                                     <p className="text-md font-semibold">{friend.username}</p>
                                     <div className='p-4'>
                                         <ProgressGrid streak={friend?.streak ?? 0} size={100} rounded={false} gap={0.125} />
                                     </div>
-                                    <p className="text-gray-600 text-[13px]">
-                                        {friend.streak !== null ? friend.streak : "No data"}/90
-                                    </p>
+                                    <div>
+                                        <p className='text-sm'>{friend.title}</p>
+                                        <p className="text-gray-600 text-[13px] opacity-70">
+                                            {friend.streak}/90
+                                        </p>
+                                    </div>
                                 </div>
                             </a>
+                            <button onClick={() => handleRemoveFriend(friend.username)} className='top-5 right-5 absolute hover:bg-red-500'>
+                                <Trash2 size={18}></Trash2>
+                            </button>
                         </div>
                     ))
                 ) : (

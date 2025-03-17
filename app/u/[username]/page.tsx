@@ -43,7 +43,7 @@ export default async function Page({ params }: Props) {
         <Other profileName={username}/>
       )}
       
-      <div className="p-4 w-[300px] items-center text-center bg-gray-200">
+      <div className="p-4 w-[300px] items-center text-center bg-gray-200 rounded-xl">
         <Friends></Friends>
       </div>
     </div>
