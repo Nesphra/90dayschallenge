@@ -24,29 +24,18 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
   const [title, setTitle] = useState<string>(initialTitle);
   const [newTitle, setNewTitle] = useState<string>(initialTitle);
 
-  // Get today's date in YYYY-MM-DD format in the user's local timezone
-  const getTodayLocal = () => {
+  // Get today's date in UTC YYYY-MM-DD format
+  const getTodayUTC = () => {
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    const utcYear = now.getUTCFullYear();
+    const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
+    const utcDay = String(now.getUTCDate()).padStart(2, '0');
+    return `${utcYear}-${utcMonth}-${utcDay}`;
   };
 
-  // Convert dates to consistent format in local timezone
-  const normalizeDate = (date: string) => {
-    const d = new Date(date);
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
-  const processedStreakDates = streakDate.map(normalizeDate);
-  const processedDateCreated = normalizeDate(date_created);
-  const today = getTodayLocal();
-
-  const alreadyUpdated = processedStreakDates.includes(today);
+  const today = getTodayUTC();
+  const lastStreakDate = streakDate[streakDate.length - 1];
+  const alreadyUpdated = lastStreakDate === today;
 
   const updateStreak = async () => {
     if (alreadyUpdated) return;
@@ -90,7 +79,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     if (!isUser) return;
     setLoading(true);
 
-    const today = getTodayLocal();
+    const today = getTodayUTC();
 
     const { error } = await supabase
       .from("streaks")
@@ -137,8 +126,8 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
       </div>
 
       <Progressgrid
-        dateCreated={processedDateCreated}
-        streakDates={processedStreakDates} // Use corrected streak dates
+        dateCreated={dateCreated}
+        streakDates={streakDate}
         size={250}
         rounded={true}
         gap={0.25}
