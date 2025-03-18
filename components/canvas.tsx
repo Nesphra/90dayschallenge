@@ -24,12 +24,21 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
   const [title, setTitle] = useState<string>(initialTitle);
   const [newTitle, setNewTitle] = useState<string>(initialTitle);
 
+  // Convert UTC streak dates to local time
+  const convertToLocalDate = (utcDate: string) => {
+    const localDate = new Date(utcDate + "T00:00:00Z"); // Treat as UTC
+    return localDate.toISOString().split("T")[0]; // Convert back to YYYY-MM-DD
+  };
+
+  const processedStreakDates = streakDate.map(convertToLocalDate);
+  const processedDateCreated = convertToLocalDate(dateCreated);
+
   // Get today's date in UTC (converted from local)
   const localMidnight = new Date();
   localMidnight.setHours(0, 0, 0, 0);
   const utcMidnight = localMidnight.toISOString().split("T")[0];
 
-  const alreadyUpdated = streakDate.includes(utcMidnight);
+  const alreadyUpdated = processedStreakDates.includes(utcMidnight);
 
   const updateStreak = async () => {
     if (alreadyUpdated) return;
@@ -115,8 +124,8 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
       </div>
 
       <Progressgrid
-        dateCreated={dateCreated}
-        streakDates={streakDate}
+        dateCreated={processedDateCreated}
+        streakDates={processedStreakDates} // Use corrected streak dates
         size={250}
         rounded={true}
         gap={0.25}
@@ -134,7 +143,6 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
             </div>
           </Button>
 
-        
           <Button
             onClick={updateStreak}
             disabled={loading || alreadyUpdated}
@@ -143,7 +151,6 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
             {alreadyUpdated ? "Completed" : loading ? "Updating..." : "Update Streak"}
           </Button>
         </div>
-      
       ) : (
         <Button className="bg-gray-400 cursor-not-allowed">
           {streakDate.length}/90 days complete
