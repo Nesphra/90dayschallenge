@@ -2,11 +2,10 @@
 
 import { createClient } from '@/utils/supabase/client';
 import { useEffect, useState } from 'react';
-import ProgressGrid from './progressGrid';
-import { Search, UserPlus, Trash2 } from "lucide-react";
+import { UserPlus, Trash2 } from "lucide-react";
 
 const Friends = () => {
-    const [friends, setFriends] = useState<{ username: string; streak: number | null; title?: string }[]>([]);
+    const [friends, setFriends] = useState<{ username: string; streakLength: number; title?: string }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [friendUsername, setFriendUsername] = useState(""); 
@@ -51,16 +50,20 @@ const Friends = () => {
 
             if (friendProfileError || !friendProfile) {
                 console.error(`Error fetching ID for ${username}:`, friendProfileError?.message);
-                return { username, streak: null };
+                return { username, streakLength: 0 };
             }
 
             const { data: streakData } = await supabase
                 .from('streaks')
-                .select()
+                .select("streakDate, title")
                 .eq('id', friendProfile.id)
                 .single();
 
-            return { username, streak: streakData.streak, title: streakData.title };
+            return {
+                username,
+                streakLength: streakData?.streakDate?.length || 0, // ✅ Use streakDate length
+                title: streakData?.title,
+            };
         }));
 
         setFriends(friendsWithStreaks);
@@ -123,7 +126,6 @@ const Friends = () => {
         fetchFriends(); 
     };
 
-    // to do
     const handleRemoveFriend = async (friendUsername: string) => {
         setError(null); // Reset error state
     
@@ -168,8 +170,6 @@ const Friends = () => {
         fetchFriends(); // Refresh the friend list after removal
     };
     
-    
-
     return (
         <div className="flex flex-col h-full max-h-full min-h-0 justify-center">
             <div className="flex gap-2 p-2">
@@ -178,7 +178,9 @@ const Friends = () => {
                     placeholder="Add a friend by username"
                     value={friendUsername}
                     onChange={(e) => setFriendUsername(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleAddFriend()} // ✅ Press Enter to submit
                 />
+
                 <button 
                     className="px-3 py-1 bg-gray-500 text-white rounded text-[13px]"
                     onClick={handleAddFriend}
@@ -201,7 +203,7 @@ const Friends = () => {
                                     <div>
                                         <p className='text-sm'>{friend.title}</p>
                                         <p className="text-gray-600 text-[13px] opacity-70">
-                                            {friend.streak}/90
+                                            {friend.streakLength}/90 {/* ✅ Uses streak length */}
                                         </p>
                                     </div>
                                 </div>

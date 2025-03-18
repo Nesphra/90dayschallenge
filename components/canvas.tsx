@@ -4,21 +4,21 @@ import { createClient } from '@/utils/supabase/client';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import Progressgrid from '@/components/progressGrid';
-import { Pencil } from "lucide-react";
+import { Pencil, RotateCcw } from "lucide-react";
 
 type CanvasProps = {
-  streak: number;
+  streakDate: string[];
   streakId: string;
-  last_logged: string; // Stored in UTC
   title: string;
   isUser: boolean;
+  date_created: string;
 };
 
-const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogged, title: initialTitle, isUser}: CanvasProps) => {
+const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, isUser, date_created }: CanvasProps) => {
   const supabase = createClient();
 
-  const [streak, setStreak] = useState<number>(initialStreak);
-  const [lastLogged, setLastLogged] = useState<string>(initialLastLogged);
+  const [streakDate, setStreakDate] = useState<string[]>(initialStreakDate || []);
+  const [dateCreated, setDateCreated] = useState<string>(date_created);
   const [loading, setLoading] = useState<boolean>(false);
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(initialTitle);
@@ -26,27 +26,26 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
 
   // Get today's date in UTC (converted from local)
   const localMidnight = new Date();
-  localMidnight.setHours(0, 0, 0, 0); // Set time to 00:00 in local timezone
-  const utcMidnight = localMidnight.toISOString().split("T")[0]; // Convert to YYYY-MM-DD UTC
+  localMidnight.setHours(0, 0, 0, 0);
+  const utcMidnight = localMidnight.toISOString().split("T")[0];
 
-  const lastLoggedDate = lastLogged ? lastLogged.split("T")[0] : null;
-  const alreadyUpdated = lastLoggedDate === utcMidnight;
-  
-  const increment = async () => {
+  const alreadyUpdated = streakDate.includes(utcMidnight);
+
+  const updateStreak = async () => {
     if (alreadyUpdated) return;
     setLoading(true);
 
-    // Store UTC midnight in Supabase
+    const updatedStreak = [...streakDate, utcMidnight];
+
     const { error } = await supabase
       .from("streaks")
-      .update({ streak: streak + 1, last_day_logged: utcMidnight })
+      .update({ streakDate: updatedStreak })
       .eq("id", streakId);
 
     if (error) {
       console.error("Error updating streak:", error.message);
     } else {
-      setStreak(streak + 1);
-      setLastLogged(utcMidnight);
+      setStreakDate(updatedStreak);
     }
 
     setLoading(false);
@@ -70,6 +69,25 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
     }
   };
 
+  const resetStreak = async () => {
+    if (!isUser) return;
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("streaks")
+      .update({ streakDate: [], date_created: utcMidnight })
+      .eq("id", streakId);
+
+    if (error) {
+      console.error("Error resetting streak:", error.message);
+    } else {
+      setStreakDate([]);
+      setDateCreated(utcMidnight);
+    }
+
+    setLoading(false);
+  };
+
   return (
     <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 h-[450px]">
       <div className="relative flex justify-center items-center gap-2 w-full">
@@ -86,33 +104,49 @@ const Canvas = ({ streak: initialStreak, streakId, last_logged: initialLastLogge
         ) : (
           <h1 className='h-20px'>{title}</h1>
         )}
-        {isUser ? (
+        {isUser && (
           <button
             onClick={() => setEditTitle(true)}
             className="w-0 opacity-50 hover:opacity-100 transition duration-200"
           >
             <Pencil size={17} />
           </button>
-        ) : (
-          null
         )}
       </div>
 
-      <Progressgrid streak={streak} size={250} rounded={true} gap={0.25}/>
-      
+      <Progressgrid
+        dateCreated={dateCreated}
+        streakDates={streakDate}
+        size={250}
+        rounded={true}
+        gap={0.25}
+      />
+
       {isUser ? (
-        <Button
-          onClick={increment}
-          disabled={loading || alreadyUpdated}
-          className={alreadyUpdated ? "bg-gray-400 cursor-not-allowed" : ""}
-        >
-          {alreadyUpdated ? "Completed" : loading ? "Updating..." : "Update Streak"}
-        </Button>
+        <div className='flex gap-2'>
+          <Button
+            onClick={resetStreak}
+            disabled={loading}
+            className="bg-red-500 peer"
+          >
+            <div className="flex p-2 items-center [.peer:hover_&]:-rotate-180 transition-transform duration-500">
+              <RotateCcw size={20} />
+            </div>
+          </Button>
+
+        
+          <Button
+            onClick={updateStreak}
+            disabled={loading || alreadyUpdated}
+            className={alreadyUpdated ? "bg-gray-400 cursor-not-allowed" : ""}
+          >
+            {alreadyUpdated ? "Completed" : loading ? "Updating..." : "Update Streak"}
+          </Button>
+        </div>
+      
       ) : (
-        <Button
-          className={"bg-gray-400 cursor-not-allowed"}
-        >
-          {streak}/90 days complete
+        <Button className="bg-gray-400 cursor-not-allowed">
+          {streakDate.length}/90 days complete
         </Button>
       )}
     </div>

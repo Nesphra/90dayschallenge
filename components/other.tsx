@@ -23,12 +23,6 @@ const Other = async ({ profileName }: OtherProps) => {
         .eq('user_name', profileName)
         .single();
 
-    const { data: streaks } = await supabase
-        .from('streaks')
-        .select()
-        .eq('id', profile?.id)
-        .single()
-
     if (!profile) {
         return (
             <div className="p-6">
@@ -54,13 +48,13 @@ const Other = async ({ profileName }: OtherProps) => {
             {streak && (
                 <Canvas
                     isUser={false}
-                    streak={streak.streak}
+                    streakDate={streak.streakDate}  // ✅ Pass the correct streak dates
                     streakId={streak.id}
-                    last_logged={streak.last_day_logged}
                     title={streak.title}
+                    date_created={streak.date_created} // ✅ Ensure date_created is passed for timezone-safe rendering
                 />
             )}
-            <p>{streak.quote}</p>
+            <p>{streak?.quote}</p>
         </div>
     );
 };
