@@ -172,6 +172,7 @@ const Friends = () => {
     
     return (
         <div className="flex flex-col h-full max-h-full min-h-0 justify-center">
+            <h2 className='font-bold'>FRIENDS</h2>
             <div className="flex gap-2 p-2">
                 <input 
                     className="px-2 py-1 rounded text-[13px] flex-1" 

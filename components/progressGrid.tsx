@@ -18,7 +18,7 @@ const ProgressGrid = ({ dateCreated, streakDates, size, rounded, gap }: Progress
   // Generate an array of the last 90 days
   const daysArray = Array.from({ length: 90 }, (_, i) => {
     const date = new Date(createdDate);
-    date.setDate(createdDate.getDate() + i + 1);
+    date.setDate(createdDate.getDate() + i);
     return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
   });
 

@@ -35,10 +35,13 @@ export default function Quote() {
             setStreak(streakData);
             setStreakLoaded(true);
 
-            // Check if a new quote is needed
-            const today = new Date().toISOString().split('T')[0];
-            if (streakData?.quoteLog !== today) {
-                generateNewQuote(streakData.title, today);
+            // ✅ Convert local midnight to UTC to compare correctly
+            const localMidnight = new Date();
+            localMidnight.setHours(0, 0, 0, 0);
+            const utcMidnight = localMidnight.toISOString().split("T")[0];
+
+            if (streakData?.quoteLog !== utcMidnight) {
+                generateNewQuote(streakData.title, utcMidnight);
             } else {
                 setQuote(streakData.quote);
             }
@@ -47,10 +50,9 @@ export default function Quote() {
         fetchStreak();
     }, []);
 
-    const generateNewQuote = async (title: string, today: string) => {
+    const generateNewQuote = async (title: string, todayUTC: string) => {
         setLoading(true);
     
-        // Add variations to the prompt
         const prompts = [
             `Give me a powerful and unique motivational message about: ${title}.`,
             `Show me what my life would look like once I've achieved ${title}`,
@@ -68,9 +70,8 @@ export default function Quote() {
             `If I only had one day left to chase: ${title}, how would you convince me to take action now?`,
             `Generate a motivational quote for: ${title} in the style of a famous thinker like Marcus Aurelius or Nietzsche.`
         ];
-            
-        // Pick a random prompt
-        const prompt = "in a few sentences and without quotation marks:" + prompts[Math.floor(Math.random() * prompts.length)];
+    
+        const prompt = "in a few sentences and without quotation marks: " + prompts[Math.floor(Math.random() * prompts.length)];
     
         try {
             const response = await fetch("/api/generate-quote", {
@@ -83,14 +84,13 @@ export default function Quote() {
             const newQuote = data.output || "Failed to generate quote. Please wait a few minutes and try again.";
             setQuote(newQuote);
     
-            // Save quote and date to Supabase
+            // Save quote and date (in UTC) to Supabase
             const supabase = createClient();
             const { data: { user } } = await supabase.auth.getUser();
     
-            // commented for testing
             await supabase
                 .from('streaks')
-                .update({ quote: newQuote, quoteLog: today })
+                .update({ quote: newQuote, quoteLog: todayUTC })
                 .eq('id', user?.id);
         } catch (error) {
             console.error("Error generating quote:", error);
@@ -98,7 +98,6 @@ export default function Quote() {
         }
         setLoading(false);
     };
-    
 
     return (
         <div>
