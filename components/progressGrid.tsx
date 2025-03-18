@@ -9,17 +9,26 @@ type ProgressGridProps = {
 };
 
 const ProgressGrid = ({ dateCreated, streakDates, size, rounded, gap }: ProgressGridProps) => {
-  const createdDate = new Date(dateCreated);
-  createdDate.setHours(0, 0, 0, 0); // Normalize to midnight UTC
+  // Normalize dates to midnight in local timezone
+  const normalizeDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize to midnight UTC
+  const startDate = new Date(dateCreated);
+  const normalizedStreakDates = streakDates.map(normalizeDate);
 
-  // Generate an array of the last 90 days
+  // Generate an array of the last 90 days starting from dateCreated
   const daysArray = Array.from({ length: 90 }, (_, i) => {
-    const date = new Date(createdDate);
-    date.setDate(createdDate.getDate() + i + 1);
-    return date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   });
 
   return (
@@ -28,7 +37,7 @@ const ProgressGrid = ({ dateCreated, streakDates, size, rounded, gap }: Progress
         <div
           key={index}
           className={`${rounded ? "rounded-md" : ""} ${
-            streakDates.includes(day) ? "bg-green-400" : "bg-gray-300"
+            normalizedStreakDates.includes(day) ? "bg-green-400" : "bg-gray-300"
           } w-6 h-6`}
         ></div>
       ))}

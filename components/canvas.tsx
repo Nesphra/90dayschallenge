@@ -24,27 +24,35 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
   const [title, setTitle] = useState<string>(initialTitle);
   const [newTitle, setNewTitle] = useState<string>(initialTitle);
 
-  // Convert UTC streak dates to local time
-  const convertToLocalDate = (utcDate: string) => {
-    const localDate = new Date(utcDate + "T00:00:00Z"); // Treat as UTC
-    return localDate.toISOString().split("T")[0]; // Convert back to YYYY-MM-DD
+  // Get today's date in YYYY-MM-DD format in the user's local timezone
+  const getTodayLocal = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
-  const processedStreakDates = streakDate.map(convertToLocalDate);
-  const processedDateCreated = convertToLocalDate(dateCreated);
+  // Convert dates to consistent format in local timezone
+  const normalizeDate = (date: string) => {
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-  // Get today's date in UTC (converted from local)
-  const localMidnight = new Date();
-  localMidnight.setHours(0, 0, 0, 0);
-  const utcMidnight = localMidnight.toISOString().split("T")[0];
+  const processedStreakDates = streakDate.map(normalizeDate);
+  const processedDateCreated = normalizeDate(date_created);
+  const today = getTodayLocal();
 
-  const alreadyUpdated = processedStreakDates.includes(utcMidnight);
+  const alreadyUpdated = processedStreakDates.includes(today);
 
   const updateStreak = async () => {
     if (alreadyUpdated) return;
     setLoading(true);
 
-    const updatedStreak = [...streakDate, utcMidnight];
+    const updatedStreak = [...streakDate, today];
 
     const { error } = await supabase
       .from("streaks")
@@ -82,16 +90,21 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     if (!isUser) return;
     setLoading(true);
 
+    const today = getTodayLocal();
+
     const { error } = await supabase
       .from("streaks")
-      .update({ streakDate: [], date_created: utcMidnight })
+      .update({ 
+        streakDate: [], 
+        date_created: today 
+      })
       .eq("id", streakId);
 
     if (error) {
       console.error("Error resetting streak:", error.message);
     } else {
       setStreakDate([]);
-      setDateCreated(utcMidnight);
+      setDateCreated(today);
     }
 
     setLoading(false);
