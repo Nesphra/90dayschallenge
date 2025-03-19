@@ -128,6 +128,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
       <Progressgrid
         dateCreated={dateCreated}
         streakDates={streakDate}
+        today={today}
         size={250}
         rounded={true}
         gap={0.25}

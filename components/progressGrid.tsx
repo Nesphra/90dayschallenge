@@ -3,12 +3,13 @@ import React from "react";
 type ProgressGridProps = {
   dateCreated: string;
   streakDates: string[];
+  today: string;
   size: number;
   rounded: boolean;
   gap: number;
 };
 
-const ProgressGrid = ({ dateCreated, streakDates, size, rounded, gap }: ProgressGridProps) => {
+const ProgressGrid = ({ dateCreated, streakDates, today, size, rounded, gap }: ProgressGridProps) => {
   // Normalize dates to midnight in local timezone
   const normalizeDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -20,6 +21,7 @@ const ProgressGrid = ({ dateCreated, streakDates, size, rounded, gap }: Progress
 
   const startDate = new Date(dateCreated);
   const normalizedStreakDates = streakDates.map(normalizeDate);
+  const normalizedToday = normalizeDate(today);
 
   // Generate an array of the last 90 days starting from dateCreated
   const daysArray = Array.from({ length: 90 }, (_, i) => {
@@ -36,9 +38,10 @@ const ProgressGrid = ({ dateCreated, streakDates, size, rounded, gap }: Progress
       {daysArray.map((day, index) => (
         <div
           key={index}
-          className={`${rounded ? "rounded-md" : ""} ${
-            normalizedStreakDates.includes(day) ? "bg-green-400" : "bg-gray-300"
-          } w-6 h-6`}
+          className={`${rounded ? "rounded-md" : ""} 
+            ${normalizedStreakDates.includes(day) ? "bg-green-400" : "bg-gray-300"}
+            ${day === normalizedToday ? "border-2 border-blue-500" : ""}
+            w-6 h-6`}
         ></div>
       ))}
     </div>
