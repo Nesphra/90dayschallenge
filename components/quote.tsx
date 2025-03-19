@@ -1,120 +1,139 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from "@/utils/supabase/client";
 
 export default function Quote() {
-    const [quote, setQuote] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [streak, setStreak] = useState<any>(null);
-    const [streakLoaded, setStreakLoaded] = useState(false);
+  const [quote, setQuote] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [streak, setStreak] = useState<any>(null);
+  const [streakLoaded, setStreakLoaded] = useState(false);
 
-    useEffect(() => {
-        const fetchStreak = async () => {
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
+  useEffect(() => {
+    const fetchStreak = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-            if (!user) {
-                setStreak(null);
-                setStreakLoaded(true);
-                return;
-            }
+      if (!user) {
+        setStreak(null);
+        setStreakLoaded(true);
+        return;
+      }
 
-            const { data: streakData, error } = await supabase
-                .from('streaks')
-                .select('title, quote, quoteLog')
-                .eq('id', user.id)
-                .single();
+      const { data: streakData, error } = await supabase
+        .from("streaks")
+        .select("title, quote, quoteLog")
+        .eq("id", user.id)
+        .single();
 
-            if (error) {
-                console.error("Error fetching streak data:", error);
-                setStreakLoaded(true);
-                return;
-            }
+      if (error) {
+        console.error("Error fetching streak data:", error);
+        setStreakLoaded(true);
+        return;
+      }
 
-            setStreak(streakData);
-            setStreakLoaded(true);
+      setStreak(streakData);
+      setStreakLoaded(true);
 
-            // ✅ Convert local midnight to UTC to compare correctly
-            const localMidnight = new Date();
-            localMidnight.setHours(0, 0, 0, 0);
-            const utcMidnight = localMidnight.toISOString().split("T")[0];
+      // ✅ Convert local midnight to UTC to compare correctly
+      const localMidnight = new Date();
+      localMidnight.setHours(0, 0, 0, 0);
+      const utcMidnight = localMidnight.toISOString().split("T")[0];
 
-            if (streakData?.quoteLog !== utcMidnight) {
-                generateNewQuote(streakData.title, utcMidnight);
-            } else {
-                setQuote(streakData.quote);
-            }
-        };
-
-        fetchStreak();
-    }, []);
-
-    const generateNewQuote = async (title: string, todayUTC: string) => {
-        setLoading(true);
-    
-        const prompts = [
-            `Give me a powerful and unique motivational message about: ${title}.`,
-            `Show me what my life would look like once I've achieved ${title}`,
-            `How would a wise mentor motivate me to reach my goal: ${title}?`,
-            `What are some practical tips for maintaining a positive mindset about: ${title}?`,
-            `Give me a metaphor or analogy that explains why I should achieve my goal: ${title}.`,
-            `Tell me the researched benefits of achieving my goal: ${title}.`,
-            `If I were on the verge of giving up on: ${title}, what would a great coach say to push me forward?`,
-            `Describe my journey towards: ${title} as if it were a heroic story, emphasizing my perseverance.`,
-            `Imagine I'm writing a letter to my future self about why I must achieve: ${title}. What should it say?`,
-            `Give me a short but deeply emotional speech about why I should reach: ${title}.`,
-            `If my goal: ${title} was a mountain, what would the journey to the top look like? Motivate me.`,
-            `Give me an ancient wisdom or philosophical perspective on why striving for: ${title} is important.`,
-            `What would a world-class athlete or leader say about the discipline needed to achieve: ${title}?`,
-            `If I only had one day left to chase: ${title}, how would you convince me to take action now?`,
-            `Generate a motivational quote for: ${title} in the style of a famous thinker like Marcus Aurelius or Nietzsche.`
-        ];
-    
-        const prompt = "in a few sentences and without quotation marks: " + prompts[Math.floor(Math.random() * prompts.length)];
-    
-        try {
-            const response = await fetch("/api/generate-quote", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ body: prompt }),
-            });
-    
-            const data = await response.json();
-            const newQuote = data.output || "Failed to generate quote. Please wait a few minutes and try again.";
-            setQuote(newQuote);
-    
-            // Save quote and date (in UTC) to Supabase
-            const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
-    
-            await supabase
-                .from('streaks')
-                .update({ quote: newQuote, quoteLog: todayUTC })
-                .eq('id', user?.id);
-        } catch (error) {
-            console.error("Error generating quote:", error);
-            setQuote("Error fetching quote.");
-        }
-        setLoading(false);
+      if (streakData?.quoteLog !== utcMidnight) {
+        generateNewQuote(streakData.title, utcMidnight);
+      } else {
+        setQuote(streakData.quote);
+      }
     };
 
-    return (
-        <div>
-            {streakLoaded ? (
-                streak ? (
-                    loading ? <p>Generating your daily motivation...</p> : 
-                        <div>
-                            <p className="my-2 text-md text-gray-500 font-bold">Daily Motivation:</p>
-                            <p>{quote}</p> 
-                            <p className="h-0 opacity-50 text-xs m-2">generated by google gemini</p>
-                        </div>
-                ) : (
-                    <p>Please log in to see your motivation.</p>
-                )
-            ) : (
-                <p>Loading daily motivation...</p>
-            )}
-        </div>
-    );
+    fetchStreak();
+  }, []);
+
+  const generateNewQuote = async (title: string, todayUTC: string) => {
+    setLoading(true);
+
+    const prompts = [
+      `Give me a **direct and powerful** motivational message that encourages me to achieve my goal: ${title}. Make it **actionable and inspiring**.`,
+      `Show me **exactly how my life will improve** once I successfully achieve: ${title}. Keep it personal and vivid.`,
+      `If I were about to **give up on** ${title}, how would a **great mentor** convince me to keep going?`,
+      `What are **practical and immediate actions** I can take today to stay consistent with my goal: ${title}?`,
+      `Give me a **motivational quote** that makes achieving ${title} feel **urgent, exciting, and rewarding**.`,
+      `Describe the **mental and physical benefits** I will experience after achieving: ${title}. Make it **personal and powerful**.`,
+      `What would a **world-class expert or coach** say to push me toward ${title} in the **most effective way possible**?`,
+      `Imagine I am **writing a letter to my future self**, explaining why I must stay committed to: ${title}. What should I say? Do not start with "Dear future self" or anything like that.`,
+      `Turn my goal: ${title} into a **hero's journey**, where I face challenges but ultimately succeed through perseverance.`,
+      `If I were at a **crossroads**, choosing between quitting and pushing forward with ${title}, what would a **wise guide** tell me?`,
+      `Give me a **straight-to-the-point, no-nonsense** piece of motivation that reminds me why ${title} is non-negotiable.`,
+      `Provide a **deeply emotional yet logical** reason why I must prioritize: ${title} every single day.`,
+      `Motivate me using **scientific and psychological principles** about why achieving ${title} is essential for my success.`,
+      `Generate a **focused, high-impact** motivational quote for: ${title} in the style of **a great leader or philosopher** like Marcus Aurelius, Jocko Willink, or James Clear.`,
+      `If I were **giving a speech to my past self**, warning them about the dangers of neglecting ${title}, what would I say?`,
+      `Describe **the turning point in my life** when I finally commit to achieving ${title} once and for all. Make it feel like a movie moment.`,
+      `Explain why achieving ${title} isn't just about me—but about how it impacts those around me. Make me **see the bigger picture**.`,
+    ];
+
+    const prompt =
+      "Speak directly to *me* in second-person perspective, making sure it's clear that *I* am the one trying to achieve this goal. Your response should be **clear, personal, and motivational**—it should make sense even without knowing the original prompt. In a few sentences and without quotation marks: " +
+      prompts[Math.floor(Math.random() * prompts.length)];
+
+    console.log("Complete prompt:", prompt);
+
+    try {
+      const response = await fetch("/api/generate-quote", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ body: prompt }),
+      });
+
+      const data = await response.json();
+      const newQuote =
+        data.output ||
+        "Failed to generate quote. Please wait a few minutes and try again.";
+      setQuote(newQuote);
+
+      // Save quote and date (in UTC) to Supabase
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      //   await supabase
+      //     .from("streaks")
+      //     .update({ quote: newQuote, quoteLog: todayUTC })
+      //     .eq("id", user?.id);
+    } catch (error) {
+      console.error("Error generating quote:", error);
+      setQuote("Error fetching quote.");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div>
+      {streakLoaded ? (
+        streak ? (
+          loading ? (
+            <p>Generating your daily motivation...</p>
+          ) : (
+            <div>
+              <p className="my-2 text-md text-gray-500 font-bold">
+                Daily Motivation:
+              </p>
+              <p>{quote}</p>
+              <p className="h-0 opacity-50 text-xs m-2">
+                generated by google gemini
+              </p>
+            </div>
+          )
+        ) : (
+          <p>Please log in to see your motivation.</p>
+        )
+      ) : (
+        <p>Loading daily motivation...</p>
+      )}
+    </div>
+  );
 }

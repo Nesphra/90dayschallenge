@@ -139,8 +139,8 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
         <div className='flex gap-2'>
           <Button
             onClick={resetStreak}
-            disabled={loading}
-            className="bg-red-500 peer"
+            disabled={loading || lastStreakDate !== today}
+            className={`bg-red-500 peer ${lastStreakDate !== today ? "bg-gray-400 cursor-not-allowed" : ""}`}
           >
             <div className="flex p-2 items-center [.peer:hover_&]:-rotate-180 transition-transform duration-500">
               <RotateCcw size={20} />
