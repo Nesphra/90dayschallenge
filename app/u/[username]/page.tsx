@@ -37,14 +37,14 @@ export default async function Page({ params }: Props) {
   }
   
   return (
-    <div className="flex h-full">
+    <div className="flex flex-col md:flex-row gap-6 md:gap-0 w-full items-center h-full">
       {isUser ? (
         <User/>
       ) : (
         <Other profileName={username}/>
       )}
       
-      <div className="hidden sm:flex p-4 w-[300px] items-center text-center bg-gray-200 rounded-xl">
+      <div className="p-4 w-full flex justify-center text-center bg-gray-200 rounded-xl h-full">
         <Friends></Friends>
       </div>
     </div>

@@ -171,7 +171,7 @@ const Friends = () => {
     };
     
     return (
-        <div className=" hidden sm:flex flex-col h-full max-h-full min-h-0 justify-center">
+        <div className="flex-col max-w-[400px] bg-blue-400">
             <h2 className='font-bold'>FRIENDS</h2>
             <div className="flex gap-2 p-2">
                 <input 
@@ -179,7 +179,7 @@ const Friends = () => {
                     placeholder="Add a friend by username"
                     value={friendUsername}
                     onChange={(e) => setFriendUsername(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleAddFriend()} // ✅ Press Enter to submit
+                    onKeyDown={(e) => e.key === "Enter" && handleAddFriend()}
                 />
 
                 <button 
@@ -192,7 +192,7 @@ const Friends = () => {
 
             {error && <div className="text-red-500 px-2">{error}</div>}
 
-            <div className="flex-1 overflow-y-auto p-2 max-h-[650px]">
+            <div className="overflow-y-auto flex-1 p-2">
                 {loading ? (
                     <div className="text-gray-600">Loading...</div>
                 ) : friends.length > 0 ? (
@@ -204,7 +204,7 @@ const Friends = () => {
                                     <div>
                                         <p className='text-sm'>{friend.title}</p>
                                         <p className="text-gray-600 text-[13px] opacity-70">
-                                            {friend.streakLength}/90 {/* ✅ Uses streak length */}
+                                            {friend.streakLength}/90
                                         </p>
                                     </div>
                                 </div>

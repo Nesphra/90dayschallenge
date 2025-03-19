@@ -80,29 +80,28 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     if (!isUser) return;
     setLoading(true);
 
-    // Remove only the last date from the streak array
-    const updatedStreak = streakDate.slice(0, -1);
+    const today = getTodayUTC();
 
     const { error } = await supabase
       .from("streaks")
       .update({ 
-        streakDate: updatedStreak,
-        // Removed date_created update since we want to keep the original start date
+        streakDate: [], 
+        date_created: today 
       })
       .eq("id", streakId);
 
     if (error) {
       console.error("Error resetting streak:", error.message);
     } else {
-      setStreakDate(updatedStreak);
-      // Removed setDateCreated since we're not changing it anymore
+      setStreakDate([]);
+      setDateCreated(today);
     }
 
     setLoading(false);
   };
 
   return (
-    <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 h-[450px]">
+    <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 min-w-[450px] h-[450px]">
       <div className="relative flex justify-center items-center gap-2 w-full">
         {editTitle ? (
           <input
@@ -116,11 +115,14 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
           />
         ) : (
           <div className="flex items-center gap-2 group">
-            <button onClick={() => setEditTitle(true)} className='h-20px capitalize cursor-pointer'>{title}</button>
+            <button className='h-20px capitalize cursor-pointer'>{title}</button>
             {isUser && (
-              <div className="opacity-0 group-hover:opacity-50 transition duration-200 w-0">
+              <button
+                onClick={() => setEditTitle(true)}
+                className="opacity-0 group-hover:opacity-50 hover:!opacity-100 transition duration-200 w-0"
+              >
                 <Pencil size={17} />
-              </div>
+              </button>
             )}
           </div>
         )}
@@ -139,8 +141,8 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
         <div className='flex gap-2'>
           <Button
             onClick={resetStreak}
-            disabled={loading || lastStreakDate !== today}
-            className={`bg-red-500 peer ${lastStreakDate !== today ? "bg-gray-400 cursor-not-allowed" : ""}`}
+            disabled={loading}
+            className="bg-red-500 peer"
           >
             <div className="flex p-2 items-center [.peer:hover_&]:-rotate-180 transition-transform duration-500">
               <RotateCcw size={20} />
