@@ -100,10 +100,10 @@ export default function Quote() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      //   await supabase
-      //     .from("streaks")
-      //     .update({ quote: newQuote, quoteLog: todayUTC })
-      //     .eq("id", user?.id);
+        await supabase
+          .from("streaks")
+          .update({ quote: newQuote, quoteLog: todayUTC })
+          .eq("id", user?.id);
     } catch (error) {
       console.error("Error generating quote:", error);
       setQuote("Error fetching quote.");
