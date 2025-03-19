@@ -44,7 +44,7 @@ export default async function Page({ params }: Props) {
         <Other profileName={username}/>
       )}
       
-      <div className="p-4 w-full flex justify-center text-center bg-gray-200 rounded-xl h-full">
+      <div className="p-4 w-full md:w-[300px] flex justify-center text-center bg-gray-200 rounded-xl h-full">
         <Friends></Friends>
       </div>
     </div>

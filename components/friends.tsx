@@ -171,7 +171,7 @@ const Friends = () => {
     };
     
     return (
-        <div className="flex-col max-w-[400px] bg-blue-400">
+        <div className="flex-col w-full max-w-[400px]">
             <h2 className='font-bold'>FRIENDS</h2>
             <div className="flex gap-2 p-2">
                 <input 
