@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import Progressgrid from '@/components/progressGrid';
 import { Pencil, RotateCcw } from "lucide-react";
 
+
 type CanvasProps = {
   streakDate: string[];
   streakId: string;
@@ -79,21 +80,22 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     if (!isUser) return;
     setLoading(true);
 
-    const today = getTodayUTC();
+    // Remove only the last date from the streak array
+    const updatedStreak = streakDate.slice(0, -1);
 
     const { error } = await supabase
       .from("streaks")
       .update({ 
-        streakDate: [], 
-        date_created: today 
+        streakDate: updatedStreak,
+        // Removed date_created update since we want to keep the original start date
       })
       .eq("id", streakId);
 
     if (error) {
       console.error("Error resetting streak:", error.message);
     } else {
-      setStreakDate([]);
-      setDateCreated(today);
+      setStreakDate(updatedStreak);
+      // Removed setDateCreated since we're not changing it anymore
     }
 
     setLoading(false);
@@ -113,15 +115,14 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
             onKeyDown={(e) => e.key === 'Enter' && saveTitle()}
           />
         ) : (
-          <h1 className='h-20px'>{title}</h1>
-        )}
-        {isUser && (
-          <button
-            onClick={() => setEditTitle(true)}
-            className="w-0 opacity-50 hover:opacity-100 transition duration-200"
-          >
-            <Pencil size={17} />
-          </button>
+          <div className="flex items-center gap-2 group">
+            <button onClick={() => setEditTitle(true)} className='h-20px capitalize cursor-pointer'>{title}</button>
+            {isUser && (
+              <div className="opacity-0 group-hover:opacity-50 transition duration-200 w-0">
+                <Pencil size={17} />
+              </div>
+            )}
+          </div>
         )}
       </div>
 
