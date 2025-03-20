@@ -102,7 +102,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
   };
 
   return (
-    <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 min-w-[450px] h-[450px]">
+    <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 md:min-w-[450px] h-[450px]">
       <div className="relative flex justify-center items-center gap-2 w-full">
         {editTitle ? (
           <input
