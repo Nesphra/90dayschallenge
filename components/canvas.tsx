@@ -80,21 +80,22 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     if (!isUser) return;
     setLoading(true);
 
-    const today = getTodayUTC();
+    // Remove only the last date from the streak array
+    const updatedStreak = streakDate.slice(0, -1);
 
     const { error } = await supabase
       .from("streaks")
       .update({ 
-        streakDate: [], 
-        date_created: today 
+        streakDate: updatedStreak,
+        // Removed date_created update since we want to keep the original start date
       })
       .eq("id", streakId);
 
     if (error) {
       console.error("Error resetting streak:", error.message);
     } else {
-      setStreakDate([]);
-      setDateCreated(today);
+      setStreakDate(updatedStreak);
+      // Removed setDateCreated since we're not changing it anymore
     }
 
     setLoading(false);
@@ -141,9 +142,9 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
         <div className='flex gap-2'>
           <Button
             onClick={resetStreak}
-            disabled={loading}
-            className="bg-red-500 peer"
-          >
+            disabled={loading || lastStreakDate !== today}
+            className={`bg-red-500 peer ${lastStreakDate !== today ? "bg-gray-400 cursor-not-allowed" : ""}`}
+            >
             <div className="flex p-2 items-center [.peer:hover_&]:-rotate-180 transition-transform duration-500">
               <RotateCcw size={20} />
             </div>
