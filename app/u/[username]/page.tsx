@@ -9,44 +9,9 @@ type Props = {
 }
  
 export default async function Page({ params }: Props) {
-  // Resolve the params promise to get the actual username
-  const resolvedParams = await params;
-  const username = resolvedParams.username;
-  
-  const supabase = await createClient();
-  
-  // get user data
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  // Fetch the user's profile based on the username from the URL
-  const { data: profile, error } = await supabase
-    .from('profiles')
-    .select()
-    .eq('user_name', username)
-    .single();
-
-  const isUser = profile?.id === user?.id;
-  
-  if (error || !profile) {
-    return (
-      <div className="p-6">
-        <h1 className="text-2xl font-bold">User not found</h1>
-        <p>Sorry, we couldn't find a user with the username: {username}</p>
-      </div>
-    );
-  }
-  
   return (
     <div className="flex flex-col md:flex-row gap-6 md:gap-0 w-full items-center h-full">
-      {isUser ? (
-        <User/>
-      ) : (
-        <Other profileName={username}/>
-      )}
-      
-      <div className="p-4 w-full md:w-[300px] flex justify-center text-center bg-gray-200 rounded-xl h-full">
-        <Friends></Friends>
-      </div>
+      <p>This website is undergoing MAJOR renovations. Please check back soon!</p>
     </div>
   );
 }
