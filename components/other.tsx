@@ -7,16 +7,13 @@ const openSans = Open_Sans({
   weight: ["700"],
 });
 
-// ✅ Use correct PascalCase naming
 type OtherProps = {
   profileName: string;
 };
 
-// ✅ Correct async function and prop handling
 const Other = async ({ profileName }: OtherProps) => {
     const supabase = await createClient();
 
-    // Fetch the profile of the user being viewed
     const { data: profile } = await supabase
         .from('profiles')
         .select('id')
@@ -32,12 +29,11 @@ const Other = async ({ profileName }: OtherProps) => {
         );
     }
 
-    // Fetch the streak data for the viewed user
-    const { data: streak } = await supabase
+    // Fetch all streaks for the viewed user
+    const { data: streaks } = await supabase
         .from('streaks')
         .select()
-        .eq('id', profile.id)
-        .single();
+        .eq('user_id', profile.id);
 
     return (
         <div className="flex-1 p-6 flex flex-col items-center text-center justify-between h-full gap-6">
@@ -45,16 +41,18 @@ const Other = async ({ profileName }: OtherProps) => {
                 <h1 className={`text-4xl font-bold uppercase ${openSans.className}`}>{profileName}'s BRAIN</h1>
                 <p><span className='capitalize text-blue-400'>{profileName}</span> is leading the chase.</p>
             </div>
-            {streak && (
+            {streaks?.map((streak) => (
                 <Canvas
+                    key={streak.streak_id}
                     isUser={false}
-                    streakDate={streak.streakDate}  // ✅ Pass the correct streak dates
-                    streakId={streak.id}
+                    streakDate={streak.streakDate || []}
+                    userID={profile.id}
                     title={streak.title}
-                    date_created={streak.date_created} // ✅ Ensure date_created is passed for timezone-safe rendering
+                    date_created={streak.date_created}
+                    streakID={streak.streak_id}
                 />
-            )}
-            <p>{streak?.quote}</p>
+            ))}
+            <p>{streaks?.[0]?.quote}</p>
         </div>
     );
 };

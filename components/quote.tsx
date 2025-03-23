@@ -22,11 +22,10 @@ export default function Quote() {
         return;
       }
 
-      const { data: streakData, error } = await supabase
+      const { data: streaks, error } = await supabase
         .from("streaks")
-        .select("title, quote, quoteLog")
-        .eq("id", user.id)
-        .single();
+        .select("title, quote, quoteLog, streakDate")
+        .eq("user_id", user.id);
 
       if (error) {
         console.error("Error fetching streak data:", error);
@@ -34,7 +33,12 @@ export default function Quote() {
         return;
       }
 
-      setStreak(streakData);
+      // Find the longest streak
+      const longestStreak = streaks?.reduce((prev, current) => {
+        return (prev?.streakDate?.length || 0) > (current?.streakDate?.length || 0) ? prev : current;
+      }, { streakDate: [], title: '', quote: '', quoteLog: '' });
+
+      setStreak(longestStreak);
       setStreakLoaded(true);
 
       // ✅ Convert local midnight to UTC to compare correctly
@@ -42,10 +46,10 @@ export default function Quote() {
       localMidnight.setHours(0, 0, 0, 0);
       const utcMidnight = localMidnight.toISOString().split("T")[0];
 
-      if (streakData?.quoteLog !== utcMidnight) {
-        generateNewQuote(streakData.title, utcMidnight);
+      if (longestStreak?.quoteLog !== utcMidnight) {
+        generateNewQuote(longestStreak.title, utcMidnight);
       } else {
-        setQuote(streakData.quote);
+        setQuote(longestStreak.quote);
       }
     };
 
@@ -103,7 +107,7 @@ export default function Quote() {
         await supabase
           .from("streaks")
           .update({ quote: newQuote, quoteLog: todayUTC })
-          .eq("id", user?.id);
+          .eq("user_id", user?.id);
     } catch (error) {
       console.error("Error generating quote:", error);
       setQuote("Error fetching quote.");

@@ -4,18 +4,19 @@ import { createClient } from '@/utils/supabase/client';
 import { useState } from 'react';
 import { Button } from './ui/button';
 import Progressgrid from '@/components/progressGrid';
-import { Pencil, RotateCcw } from "lucide-react";
+import { Pencil, RotateCcw, Plus, Minus } from "lucide-react";
 
 
 type CanvasProps = {
   streakDate: string[];
-  streakId: string;
+  userID: string;
   title: string;
   isUser: boolean;
   date_created: string;
+  streakID: string;
 };
 
-const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, isUser, date_created }: CanvasProps) => {
+const Canvas = ({ streakDate: initialStreakDate, userID, title: initialTitle, isUser, date_created, streakID }: CanvasProps) => {
   const supabase = createClient();
 
   const [streakDate, setStreakDate] = useState<string[]>(initialStreakDate || []);
@@ -40,6 +41,10 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
 
   const updateStreak = async () => {
     if (alreadyUpdated) return;
+    if (!streakID) {
+      console.error("No streak ID provided");
+      return;
+    }
     setLoading(true);
 
     const updatedStreak = [...streakDate, today];
@@ -47,7 +52,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     const { error } = await supabase
       .from("streaks")
       .update({ streakDate: updatedStreak })
-      .eq("id", streakId);
+      .eq("streak_id", streakID);
 
     if (error) {
       console.error("Error updating streak:", error.message);
@@ -59,6 +64,10 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
   };
 
   const saveTitle = async () => {
+    if (!streakID) {
+      console.error("No streak ID provided");
+      return;
+    }
     setEditTitle(false);
     if (newTitle === title) return;
 
@@ -68,7 +77,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     const { error } = await supabase
       .from("streaks")
       .update({ title: newTitle })
-      .eq('id', streakId);
+      .eq('streak_id', streakID);
 
     if (error) {
       console.error('Error updating title:', error.message);
@@ -78,29 +87,33 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
 
   const resetStreak = async () => {
     if (!isUser) return;
+    if (!streakID) {
+      console.error("No streak ID provided");
+      return;
+    }
     setLoading(true);
 
-    // Remove only the last date from the streak array
     const updatedStreak = streakDate.slice(0, -1);
 
     const { error } = await supabase
       .from("streaks")
       .update({ 
         streakDate: updatedStreak,
-        // Removed date_created update since we want to keep the original start date
       })
-      .eq("id", streakId);
+      .eq("streak_id", streakID);
 
     if (error) {
       console.error("Error resetting streak:", error.message);
     } else {
       setStreakDate(updatedStreak);
-      // Removed setDateCreated since we're not changing it anymore
     }
 
     setLoading(false);
   };
 
+  const handleRemoveStreak = async () => {
+    console.log({streakID})
+  }
   return (
     <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 md:min-w-[450px] h-[450px]">
       <div className="relative flex justify-center items-center gap-2 w-full">
@@ -116,7 +129,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
           />
         ) : (
           <div className="flex items-center gap-2 group">
-            <button className='h-20px capitalize cursor-pointer'>{title}</button>
+            <button onClick={() => setEditTitle(true)} className='h-20px capitalize cursor-pointer'>{title}</button>
             {isUser && (
               <button
                 onClick={() => setEditTitle(true)}
@@ -125,6 +138,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
                 <Pencil size={17} />
               </button>
             )}
+            <p>{streakID}</p>
           </div>
         )}
       </div>
@@ -140,6 +154,9 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
 
       {isUser ? (
         <div className='flex gap-2'>
+          <Button onClick={handleRemoveStreak}>
+            <Minus size={20} />
+          </Button>
           <Button
             onClick={resetStreak}
             disabled={loading || lastStreakDate !== today}
