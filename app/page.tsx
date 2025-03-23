@@ -1,32 +1,12 @@
-import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
-
 export default async function Home() {
-  const supabase =  await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  
-  if (user) {
-    const { data: profile } = await supabase
-    .from("profiles")
-    .select("username")
-    .eq("id", user.id)
-    .single();
-    
-    if (profile?.username) {
-      redirect(`/u/${profile.username}`); // Redirect if user is authenticated
-    }
-  }
-  
   return (
     <main>
-      <div>
-        <h1>Take control.</h1>
-        <p>Join millions of others improving their lives</p>
-        <Button><a href="/sign-up">Change my life</a></Button>
-        <p>{}</p>
-      </div>
+      <div className="flex md:flex-col gap-6 md:gap-0 w-full items-center text-center justify-center h-full">
+      <p>🚧</p>
+      <p>Do not take another step!</p>
+      <p>This website is undergoing MAJOR renovations. Please check back soon!</p>
+      <p>🚧</p>
+    </div>
     </main>
   );
 }

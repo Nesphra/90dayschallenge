@@ -10,8 +10,11 @@ type Props = {
  
 export default async function Page({ params }: Props) {
   return (
-    <div className="flex flex-col md:flex-row gap-6 md:gap-0 w-full items-center h-full">
+    <div className="flex md:flex-col gap-6 md:gap-0 w-full items-center text-center justify-center h-full">
+      <p>🚧</p>
+      <p>Do not take another step!</p>
       <p>This website is undergoing MAJOR renovations. Please check back soon!</p>
+      <p>🚧</p>
     </div>
   );
 }
