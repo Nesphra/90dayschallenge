@@ -23,6 +23,7 @@ const Canvas = ({ streakDate: initialStreakDate, title: initialTitle, isUser, da
   const [editTitle, setEditTitle] = useState<boolean>(false);
   const [title, setTitle] = useState<string>(initialTitle);
   const [newTitle, setNewTitle] = useState<string>(initialTitle);
+  const [isConfirmingReset, setIsConfirmingReset] = useState(false);
 
   // Get today's date in UTC YYYY-MM-DD format
   const getTodayUTC = () => {
@@ -95,8 +96,53 @@ const Canvas = ({ streakDate: initialStreakDate, title: initialTitle, isUser, da
     setLoading(false);
   };
 
+  const handleFullReset = async () => {
+    if (!isConfirmingReset) {
+      setIsConfirmingReset(true);
+      // Reset confirmation state after 3 seconds
+      setTimeout(() => setIsConfirmingReset(false), 3000);
+      return;
+    }
+
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    const todayDate = getTodayUTC();
+
+    const { error } = await supabase
+      .from("streaks")
+      .update({ 
+        streakDate: [],
+        date_created: todayDate 
+      })
+      .eq('user_id', user?.id);
+
+    if (error) {
+      console.error("Error resetting streak:", error.message);
+    } else {
+      setStreakDate([]);
+      setDateCreated(todayDate);
+      setIsConfirmingReset(false);
+    }
+    setLoading(false);
+  };
+
   return (
     <div className="relative flex flex-col items-center p-10 justify-between border-2 border-gray-300 rounded w-4/5 md:min-w-[450px] h-[450px]">
+      {isUser && (
+        <Button
+          onClick={handleFullReset}
+          disabled={loading}
+          className={`absolute top-2 left-2 ${
+            isConfirmingReset 
+              ? 'bg-red-500 hover:bg-red-600' 
+              : 'bg-gray-500 hover:bg-gray-600'
+          }`}
+          size="sm"
+        >
+          {isConfirmingReset ? "Are you sure?" : "Reset"}
+        </Button>
+      )}
+
       <div className="relative flex justify-center items-center gap-2 w-full">
         {editTitle ? (
           <input
@@ -110,7 +156,7 @@ const Canvas = ({ streakDate: initialStreakDate, title: initialTitle, isUser, da
           />
         ) : (
           <div className="flex items-center gap-2 group">
-            <button className='h-20px capitalize cursor-pointer'>{title}</button>
+            <button onClick={() => setEditTitle(true)} className='h-20px capitalize cursor-pointer'>{title}</button>
             {isUser && (
               <button
                 onClick={() => setEditTitle(true)}
