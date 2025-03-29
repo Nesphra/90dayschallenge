@@ -36,7 +36,7 @@ const Other = async ({ profileName }: OtherProps) => {
     const { data: streak } = await supabase
         .from('streaks')
         .select()
-        .eq('id', profile.id)
+        .eq('user_id', profile.id)
         .single();
 
     return (
@@ -48,10 +48,9 @@ const Other = async ({ profileName }: OtherProps) => {
             {streak && (
                 <Canvas
                     isUser={false}
-                    streakDate={streak.streakDate}  // ✅ Pass the correct streak dates
-                    streakId={streak.id}
+                    streakDate={streak.streakDate || []}
                     title={streak.title}
-                    date_created={streak.date_created} // ✅ Ensure date_created is passed for timezone-safe rendering
+                    date_created={streak.date_created}
                 />
             )}
             <p>{streak?.quote}</p>

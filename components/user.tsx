@@ -15,7 +15,7 @@ const User = async () => {
     const { data: streak } = await supabase
         .from('streaks')
         .select()
-        .eq('id', user?.id)
+        .eq('user_id', user?.id)
         .single()
 
     return (
@@ -27,10 +27,9 @@ const User = async () => {
             {streak && (
                 <Canvas
                     isUser={true}
-                    streakId={streak.id}
                     title={streak.title}
                     date_created={streak.date_created}
-                    streakDate={streak.streakDate || []} // Ensure it's always an array
+                    streakDate={streak.streakDate || []}
                 />
             )}
             <Quote />

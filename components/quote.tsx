@@ -12,9 +12,8 @@ export default function Quote() {
   useEffect(() => {
     const fetchStreak = async () => {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      setLoading(true);
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
 
       if (!user) {
         setStreak(null);
@@ -25,7 +24,7 @@ export default function Quote() {
       const { data: streakData, error } = await supabase
         .from("streaks")
         .select("title, quote, quoteLog")
-        .eq("id", user.id)
+        .eq("user_id", user.id)
         .single();
 
       if (error) {

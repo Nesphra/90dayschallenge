@@ -25,7 +25,6 @@ export default async function Home() {
         <h1>Take control.</h1>
         <p>Join millions of others improving their lives</p>
         <Button><a href="/sign-up">Change my life</a></Button>
-        <p>{}</p>
       </div>
     </main>
   );

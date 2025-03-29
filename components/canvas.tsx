@@ -9,13 +9,12 @@ import { Pencil, RotateCcw } from "lucide-react";
 
 type CanvasProps = {
   streakDate: string[];
-  streakId: string;
   title: string;
   isUser: boolean;
   date_created: string;
 };
 
-const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, isUser, date_created }: CanvasProps) => {
+const Canvas = ({ streakDate: initialStreakDate, title: initialTitle, isUser, date_created }: CanvasProps) => {
   const supabase = createClient();
 
   const [streakDate, setStreakDate] = useState<string[]>(initialStreakDate || []);
@@ -47,7 +46,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     const { error } = await supabase
       .from("streaks")
       .update({ streakDate: updatedStreak })
-      .eq("id", streakId);
+      .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
 
     if (error) {
       console.error("Error updating streak:", error.message);
@@ -68,7 +67,7 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     const { error } = await supabase
       .from("streaks")
       .update({ title: newTitle })
-      .eq('id', streakId);
+      .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
 
     if (error) {
       console.error('Error updating title:', error.message);
@@ -80,22 +79,17 @@ const Canvas = ({ streakDate: initialStreakDate, streakId, title: initialTitle, 
     if (!isUser) return;
     setLoading(true);
 
-    // Remove only the last date from the streak array
     const updatedStreak = streakDate.slice(0, -1);
 
     const { error } = await supabase
       .from("streaks")
-      .update({ 
-        streakDate: updatedStreak,
-        // Removed date_created update since we want to keep the original start date
-      })
-      .eq("id", streakId);
+      .update({ streakDate: updatedStreak })
+      .eq('user_id', (await supabase.auth.getUser()).data.user?.id);
 
     if (error) {
       console.error("Error resetting streak:", error.message);
     } else {
       setStreakDate(updatedStreak);
-      // Removed setDateCreated since we're not changing it anymore
     }
 
     setLoading(false);
